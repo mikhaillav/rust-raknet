@@ -29,7 +29,7 @@ pub struct RaknetListener {
     drop_notifier: Arc<Notify>,
     version_map: Arc<Mutex<HashMap<String, u8>>>,
     motd_receiver: Arc<Mutex<Receiver<String>>>,
-    motd_sender: Sender<String>,
+    pub motd_sender: Sender<String>,
 }
 
 impl RaknetListener {
