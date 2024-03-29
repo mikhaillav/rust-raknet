@@ -1,6 +1,6 @@
 //! RakNet Protocol implementation by Rust.
 //!
-//! Raknet is a reliable udp transport protocol that is generally used for communication between game clients and servers, and is used by Minecraft Bedrock Edtion for underlying communication.
+//! Raknet is a reliable udp transport protocol that is generally used for communication between game clients and servers, and is used by Minecraft Bedrock Edition for underlying communication.
 //!
 //! Raknet protocol supports various reliability options, and has better transmission performance than TCP in unstable network environments. This project is an incomplete implementation of the protocol by reverse engineering.
 //!
@@ -102,7 +102,7 @@ async fn test_connect() {
 
     tokio::spawn(async move {
         let client1 = server.accept().await.unwrap();
-        assert!(client1.local_addr().unwrap() == local_addr);
+        assert_eq!(client1.local_addr().unwrap(), local_addr);
         client1
             .send(&[0xfe, 2, 3], Reliability::Reliable)
             .await
@@ -110,9 +110,9 @@ async fn test_connect() {
         notify2.notified().await;
     });
     let client2 = RaknetSocket::connect(&local_addr).await.unwrap();
-    assert!(client2.peer_addr().unwrap() == local_addr);
+    assert_eq!(client2.peer_addr().unwrap(), local_addr);
     let buf = client2.recv().await.unwrap();
-    assert!(buf == vec![0xfe, 2, 3]);
+    assert_eq!(buf, vec![0xfe, 2, 3]);
 
     notify.notify_one();
 }
@@ -130,7 +130,7 @@ async fn test_send_recv_fragment_data() {
 
     tokio::spawn(async move {
         let client1 = server.accept().await.unwrap();
-        assert!(client1.local_addr().unwrap() == local_addr);
+        assert_eq!(client1.local_addr().unwrap(), local_addr);
 
         let mut a = vec![3u8; 1000];
         let mut b = vec![2u8; 1000];
@@ -146,12 +146,12 @@ async fn test_send_recv_fragment_data() {
         notify2.notified().await;
     });
     let client2 = RaknetSocket::connect(&local_addr).await.unwrap();
-    assert!(client2.peer_addr().unwrap() == local_addr);
+    assert_eq!(client2.peer_addr().unwrap(), local_addr);
     let buf = client2.recv().await.unwrap();
-    assert!(buf.len() == 3000);
-    assert!(buf[0..1000] == vec![0xfe; 1000]);
-    assert!(buf[1000..2000] == vec![2u8; 1000]);
-    assert!(buf[2000..3000] == vec![3u8; 1000]);
+    assert_eq!(buf.len(), 3000);
+    assert_eq!(buf[0..1000], vec![0xfe; 1000]);
+    assert_eq!(buf[1000..2000], vec![2u8; 1000]);
+    assert_eq!(buf[2000..3000], vec![3u8; 1000]);
 
     notify.notify_one();
 }
@@ -169,28 +169,28 @@ async fn test_send_recv_more_reliability_type_packet() {
 
     tokio::spawn(async move {
         let client1 = server.accept().await.unwrap();
-        assert!(client1.local_addr().unwrap() == local_addr);
+        assert_eq!(client1.local_addr().unwrap(), local_addr);
 
         client1
             .send(&[0xfe, 1, 2, 3], Reliability::Unreliable)
             .await
             .unwrap();
         let data = client1.recv().await.unwrap();
-        assert!(data == [0xfe, 4, 5, 6].to_vec());
+        assert_eq!(data, [0xfe, 4, 5, 6].to_vec());
 
         client1
             .send(&[0xfe, 7, 8, 9], Reliability::UnreliableSequenced)
             .await
             .unwrap();
         let data = client1.recv().await.unwrap();
-        assert!(data == [0xfe, 10, 11, 12].to_vec());
+        assert_eq!(data, [0xfe, 10, 11, 12].to_vec());
 
         client1
             .send(&[0xfe, 13, 14, 15], Reliability::Reliable)
             .await
             .unwrap();
         let data = client1.recv().await.unwrap();
-        assert!(data == [0xfe, 16, 17, 18].to_vec());
+        assert_eq!(data, [0xfe, 16, 17, 18].to_vec());
 
         let mut a = vec![3u8; 1000];
         let mut b = vec![2u8; 1000];
@@ -204,25 +204,25 @@ async fn test_send_recv_more_reliability_type_packet() {
             .unwrap();
 
         let buf = client1.recv().await.unwrap();
-        assert!(buf.len() == 3000);
-        assert!(buf[0..1000] == vec![0xfe; 1000]);
-        assert!(buf[1000..2000] == vec![2u8; 1000]);
-        assert!(buf[2000..3000] == vec![3u8; 1000]);
+        assert_eq!(buf.len(), 3000);
+        assert_eq!(buf[0..1000], vec![0xfe; 1000]);
+        assert_eq!(buf[1000..2000], vec![2u8; 1000]);
+        assert_eq!(buf[2000..3000], vec![3u8; 1000]);
 
         client1
             .send(&[0xfe, 19, 20, 21], Reliability::ReliableSequenced)
             .await
             .unwrap();
         let data = client1.recv().await.unwrap();
-        assert!(data == [0xfe, 22, 23, 24].to_vec());
+        assert_eq!(data, [0xfe, 22, 23, 24].to_vec());
 
         notify2.notified().await;
     });
     let client2 = RaknetSocket::connect(&local_addr).await.unwrap();
-    assert!(client2.peer_addr().unwrap() == local_addr);
+    assert_eq!(client2.peer_addr().unwrap(), local_addr);
 
     let buf = client2.recv().await.unwrap();
-    assert!(buf == [0xfe, 1, 2, 3]);
+    assert_eq!(buf, [0xfe, 1, 2, 3]);
 
     client2
         .send(&[0xfe, 4, 5, 6], Reliability::Unreliable)
@@ -230,7 +230,7 @@ async fn test_send_recv_more_reliability_type_packet() {
         .unwrap();
 
     let buf = client2.recv().await.unwrap();
-    assert!(buf == [0xfe, 7, 8, 9]);
+    assert_eq!(buf, [0xfe, 7, 8, 9]);
 
     client2
         .send(&[0xfe, 10, 11, 12], Reliability::UnreliableSequenced)
@@ -238,7 +238,7 @@ async fn test_send_recv_more_reliability_type_packet() {
         .unwrap();
 
     let buf = client2.recv().await.unwrap();
-    assert!(buf == [0xfe, 13, 14, 15]);
+    assert_eq!(buf, [0xfe, 13, 14, 15]);
 
     client2
         .send(&[0xfe, 16, 17, 18], Reliability::Reliable)
@@ -246,10 +246,10 @@ async fn test_send_recv_more_reliability_type_packet() {
         .unwrap();
 
     let buf = client2.recv().await.unwrap();
-    assert!(buf.len() == 3000);
-    assert!(buf[0..1000] == vec![0xfe; 1000]);
-    assert!(buf[1000..2000] == vec![2u8; 1000]);
-    assert!(buf[2000..3000] == vec![3u8; 1000]);
+    assert_eq!(buf.len(), 3000);
+    assert_eq!(buf[0..1000], vec![0xfe; 1000]);
+    assert_eq!(buf[1000..2000], vec![2u8; 1000]);
+    assert_eq!(buf[2000..3000], vec![3u8; 1000]);
 
     let mut a = vec![3u8; 1000];
     let mut b = vec![2u8; 1000];
@@ -263,7 +263,7 @@ async fn test_send_recv_more_reliability_type_packet() {
         .unwrap();
 
     let buf = client2.recv().await.unwrap();
-    assert!(buf == [0xfe, 19, 20, 21]);
+    assert_eq!(buf, [0xfe, 19, 20, 21]);
 
     client2
         .send(&[0xfe, 22, 23, 24], Reliability::ReliableSequenced)
@@ -297,7 +297,7 @@ async fn test_loss_packet1() {
                 .unwrap();
 
             let data = client1.recv().await.unwrap();
-            assert!(data == flag);
+            assert_eq!(data, flag);
         }
 
         notify2.notified().await;
@@ -316,7 +316,7 @@ async fn test_loss_packet1() {
             .unwrap();
 
         let data = client2.recv().await.unwrap();
-        assert!(data == flag);
+        assert_eq!(data, flag);
     }
     notify.notify_one();
 }
@@ -350,7 +350,7 @@ async fn test_loss_packet2() {
             let mut data = vec![i as u8; 2000];
             flag.append(&mut data);
             let data = client1.recv().await.unwrap();
-            assert!(data == flag);
+            assert_eq!(data, flag);
         }
         notify2.notified().await;
     });
@@ -373,7 +373,7 @@ async fn test_loss_packet2() {
         let mut data = vec![i as u8; 2000];
         flag.append(&mut data);
         let data = client2.recv().await.unwrap();
-        assert!(data == flag);
+        assert_eq!(data, flag);
     }
     notify.notify_one();
 }
@@ -458,10 +458,10 @@ async fn test_raknet_server_close() {
 
         let client2 = server.accept().await.unwrap();
         let buf = client2.recv().await.unwrap();
-        assert!(buf.len() == 3000);
-        assert!(buf[0..1000] == vec![0xfe; 1000]);
-        assert!(buf[1000..2000] == vec![2u8; 1000]);
-        assert!(buf[2000..3000] == vec![3u8; 1000]);
+        assert_eq!(buf.len(), 3000);
+        assert_eq!(buf[0..1000], vec![0xfe; 1000]);
+        assert_eq!(buf[1000..2000], vec![2u8; 1000]);
+        assert_eq!(buf[2000..3000], vec![3u8; 1000]);
 
         server.close().await.unwrap();
         client.close().await.unwrap();
@@ -506,7 +506,7 @@ async fn test_send_recv_full_packet() {
 
     for _ in 0..50 {
         let buf = client.recv().await.unwrap();
-        assert!(buf == [0xfe; 1000]);
+        assert_eq!(buf, [0xfe; 1000]);
     }
 }
 
@@ -557,7 +557,7 @@ async fn test_send_recv_with_flush() {
 
     for _ in 0..50 {
         let buf = client.recv().await.unwrap();
-        assert!(buf == [0xfe; 1000]);
+        assert_eq!(buf, [0xfe; 1000]);
         s2.add_permits(1);
     }
 }

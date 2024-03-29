@@ -81,7 +81,7 @@ impl RaknetListener {
     /// ```
     pub async fn from_std(s: std::net::UdpSocket) -> Result<Self> {
         s.set_nonblocking(true)
-            .expect("set udpsocket nonblocking error");
+            .expect("set udp socket nonblocking error");
 
         let s = match UdpSocket::from_std(s) {
             Ok(p) => p,
@@ -132,13 +132,13 @@ impl RaknetListener {
                         match a {
                             Some(p) => { addr = p },
                             None => {
-                                raknet_log_debug!("session collecter closed");
+                                raknet_log_debug!("session collector closed");
                                 break;
                             },
                         };
                     },
                     _ = close_notifier.acquire() => {
-                        raknet_log_debug!("session collecter close notified");
+                        raknet_log_debug!("session collector close notified");
                         break;
                     }
                 }
@@ -285,7 +285,7 @@ impl RaknetListener {
                 let cur_status = match PacketID::from(buf[0]) {
                     Ok(p) => p,
                     Err(e) => {
-                        raknet_log_debug!("parse packetid failed : {:?}", e);
+                        raknet_log_debug!("parse packet id failed : {:?}", e);
                         continue;
                     }
                 };
@@ -297,7 +297,7 @@ impl RaknetListener {
                             Err(_) => continue,
                         };
 
-                        let packet = crate::packet::PacketUnconnectedPong {
+                        let packet = PacketUnconnectedPong {
                             time: cur_timestamp_millis(),
                             guid,
                             magic: true,
@@ -323,7 +323,7 @@ impl RaknetListener {
                             Err(_) => continue,
                         };
 
-                        let packet = crate::packet::PacketUnconnectedPong {
+                        let packet = PacketUnconnectedPong {
                             time: cur_timestamp_millis(),
                             guid,
                             magic: true,
@@ -353,7 +353,7 @@ impl RaknetListener {
                             .as_slice()
                             .contains(&req.protocol_version)
                         {
-                            let packet = crate::packet::IncompatibleProtocolVersion {
+                            let packet = IncompatibleProtocolVersion {
                                 server_protocol: RAKNET_PROTOCOL_VERSION,
                                 magic: true,
                                 server_guid: guid,
@@ -373,7 +373,7 @@ impl RaknetListener {
                             version_map.insert(addr.to_string(), req.protocol_version);
                         }
 
-                        let packet = crate::packet::OpenConnectionReply1 {
+                        let packet = OpenConnectionReply1 {
                             magic: true,
                             guid,
                             // Make sure this is false, it is vital for the login sequence to continue
@@ -401,7 +401,7 @@ impl RaknetListener {
                             Err(_) => continue,
                         };
 
-                        let packet = crate::packet::OpenConnectionReply2 {
+                        let packet = OpenConnectionReply2 {
                             magic: true,
                             guid,
                             address: addr,
