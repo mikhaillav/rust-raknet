@@ -517,7 +517,7 @@ pub fn write_packet_connection_request_accepted(
     Ok(cursor.get_raw_payload())
 }
 
-pub fn read_packet_new_incomming_connection(buf: &[u8]) -> Result<NewIncomingConnection> {
+pub fn read_packet_new_incoming_connection(buf: &[u8]) -> Result<NewIncomingConnection> {
     let mut cursor = RaknetReader::new(buf.to_vec());
     unwrap_or_return!(cursor.read_u8());
     Ok(NewIncomingConnection {
@@ -532,7 +532,7 @@ pub fn read_packet_new_incomming_connection(buf: &[u8]) -> Result<NewIncomingCon
     })
 }
 
-pub fn write_packet_new_incomming_connection(packet: &NewIncomingConnection) -> Result<Vec<u8>> {
+pub fn write_packet_new_incoming_connection(packet: &NewIncomingConnection) -> Result<Vec<u8>> {
     let mut cursor = RaknetWriter::new();
     unwrap_or_return!(cursor.write_u8(PacketID::NewIncomingConnection.to_u8()));
     unwrap_or_return!(cursor.write_address(packet.server_address));

@@ -178,7 +178,7 @@ impl RaknetListener {
                 let addr = match collect_receiver.recv().await {
                     Some(p) => p,
                     None => {
-                        raknet_log_error!("clean session faild , maybe has session not close");
+                        raknet_log_error!("clean session failed , maybe has session not close");
                         break;
                     }
                 };
@@ -285,7 +285,7 @@ impl RaknetListener {
                 let cur_status = match PacketID::from(buf[0]) {
                     Ok(p) => p,
                     Err(e) => {
-                        raknet_log_debug!("parse packetid faild : {:?}", e);
+                        raknet_log_debug!("parse packetid failed : {:?}", e);
                         continue;
                     }
                 };

@@ -65,7 +65,7 @@ async fn main() {
             let mut client2 = match RaknetSocket::connect(&remote_address.parse().unwrap()).await{
                 Ok(p) => p,
                 Err(e) => {
-                    println!("connect remote raknet server faild : {:?}", e);
+                    println!("connect remote raknet server failed : {:?}", e);
                     client1.close().await.unwrap();
                     return;
                 },

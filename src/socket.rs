@@ -32,7 +32,7 @@ pub struct RaknetSocket {
     last_heartbeat_time: Arc<AtomicI64>,
     enable_loss: Arc<AtomicBool>,
     loss_rate: Arc<AtomicU8>,
-    incomming_notifier: Arc<Notify>,
+    incoming_notifier: Arc<Notify>,
     sender: Sender<(Vec<u8>, SocketAddr, bool, u8)>,
     drop_notifier: Arc<Notify>,
     raknet_version: u8,
@@ -63,7 +63,7 @@ impl RaknetSocket {
             last_heartbeat_time: Arc::new(AtomicI64::new(cur_timestamp_millis())),
             enable_loss: Arc::new(AtomicBool::new(false)),
             loss_rate: Arc::new(AtomicU8::new(0)),
-            incomming_notifier: Arc::new(Notify::new()),
+            incoming_notifier: Arc::new(Notify::new()),
             sender: sender_sender,
             drop_notifier: Arc::new(Notify::new()),
             raknet_version,
@@ -81,7 +81,7 @@ impl RaknetSocket {
         local_addr: &SocketAddr,
         sendq: &RwLock<SendQ>,
         user_data_sender: &Sender<Vec<u8>>,
-        incomming_notify: &Notify,
+        incoming_notify: &Notify,
     ) -> Result<bool> {
         match PacketID::from(frame.data[0])? {
             PacketID::ConnectionRequest => {
@@ -111,21 +111,21 @@ impl RaknetSocket {
 
                 let mut sendq = sendq.write().await;
 
-                let buf = write_packet_new_incomming_connection(&packet_reply)?;
+                let buf = write_packet_new_incoming_connection(&packet_reply)?;
                 sendq.insert(Reliability::ReliableOrdered, &buf)?;
 
                 let ping = ConnectedPing {
                     client_timestamp: cur_timestamp_millis(),
                 };
 
-                //i dont know why incomming packet after always follow a connected ping packet in minecraft bedrock 1.18.12.
+                //i dont know why incoming packet after always follow a connected ping packet in minecraft bedrock 1.18.12.
                 let buf = write_packet_connected_ping(&ping)?;
                 sendq.insert(Reliability::Unreliable, &buf)?;
-                raknet_log_debug!("incomming notified");
-                incomming_notify.notify_one();
+                raknet_log_debug!("incoming notified");
+                incoming_notify.notify_one();
             }
             PacketID::NewIncomingConnection => {
-                let _packet = read_packet_new_incomming_connection(frame.data.as_slice())?;
+                let _packet = read_packet_new_incoming_connection(frame.data.as_slice())?;
             }
             PacketID::ConnectedPing => {
                 let packet = read_packet_connected_ping(frame.data.as_slice())?;
@@ -399,7 +399,7 @@ impl RaknetSocket {
             last_heartbeat_time: Arc::new(AtomicI64::new(cur_timestamp_millis())),
             enable_loss: Arc::new(AtomicBool::new(false)),
             loss_rate: Arc::new(AtomicU8::new(0)),
-            incomming_notifier: Arc::new(Notify::new()),
+            incoming_notifier: Arc::new(Notify::new()),
             sender: sender_sender,
             drop_notifier: Arc::new(Notify::new()),
             raknet_version,
@@ -410,8 +410,8 @@ impl RaknetSocket {
         ret.start_sender(&s, sender_receiver);
         ret.drop_watcher().await;
 
-        raknet_log_debug!("wait incomming notify");
-        ret.incomming_notifier.notified().await;
+        raknet_log_debug!("wait incoming notify");
+        ret.incoming_notifier.notified().await;
 
         Ok(ret)
     }
@@ -428,7 +428,7 @@ impl RaknetSocket {
         let sendq = self.sendq.clone();
         let recvq = self.recvq.clone();
         let last_heartbeat_time = self.last_heartbeat_time.clone();
-        let incomming_notify = self.incomming_notifier.clone();
+        let incoming_notify = self.incoming_notifier.clone();
         let s = s.clone();
         let enable_loss = self.enable_loss.clone();
         let loss_rate = self.loss_rate.clone();
@@ -443,7 +443,7 @@ impl RaknetSocket {
                             &local_addr,
                             &sendq,
                             &user_data_sender,
-                            &incomming_notify,
+                            &incoming_notify,
                         )
                         .await
                         .unwrap();
@@ -520,7 +520,7 @@ impl RaknetSocket {
                                 &local_addr,
                                 &sendq,
                                 &user_data_sender,
-                                &incomming_notify,
+                                &incoming_notify,
                             )
                             .await
                             .unwrap()
