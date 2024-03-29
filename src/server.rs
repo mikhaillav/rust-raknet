@@ -530,12 +530,7 @@ impl RaknetListener {
     /// # Example
     /// ```ignore
     /// let mut listener = RaknetListener::bind("127.0.0.1:19132".parse().unwrap()).await.unwrap();
-    /// match listener.set_full_motd(String::from("motd")).await {
-    ///     Ok(_) => (),
-    ///     Err(_) => {
-    ///         println!("Failed to update full motd!");
-    ///     },
-    /// };
+    /// listener.set_motd("Another Minecraft Server" , 999999 , "486" , "1.18.11", "Survival" , 19132).await.unwrap();
     /// ```
     pub async fn set_motd(
         &mut self,
@@ -621,7 +616,7 @@ impl RaknetListener {
     /// # Example
     /// ```ignore
     /// let mut listener = RaknetListener::bind("127.0.0.1:19132".parse().unwrap()).await.unwrap();
-    /// listener.set_motd("Another Minecraft Server" , 999999 , "486" , "1.18.11", "Survival" , 19132).await.unwrap();
+    /// listener.set_full_motd(String::from("motd")).await.unwrap();
     /// ```
     pub async fn set_full_motd(&mut self, motd: String) -> Result<()>{
         match self.motd_sender.send(motd.clone()).await {
