@@ -525,7 +525,7 @@ impl RaknetListener {
     ///
     /// Call this method must be after calling RaknetListener::listen()
     ///
-    /// Returns a result with RaknetError::SetMotdError if failed to send new motd to motd_receiver (so it doesn't update) or with () if everything went smooth
+    /// Returns a result with RaknetError::SetMotdError if failed to send new motd to motd_receiver (so it doesn't update) or with () if everything went smooth.
     /// 
     /// # Example
     /// ```ignore
@@ -616,7 +616,7 @@ impl RaknetListener {
 
     /// Set full motd string.
     /// 
-    /// Returns a result with RaknetError::SetMotdError if failed to send new motd to motd_receiver (so it doesn't update) or with () if everything went smooth
+    /// Returns a result with RaknetError::SetMotdError if failed to send new motd to motd_receiver (so it doesn't update) or with () if everything went smooth.
     /// 
     /// # Example
     /// ```ignore
